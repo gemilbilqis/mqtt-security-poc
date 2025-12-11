@@ -16,6 +16,11 @@ public class Publisher {
     public static void main(String[] args) {
         System.out.println("Publisher running...");
         try {
+            byte[] key = KeyLoader.loadKey("keys/aes.key");
+            String plaintext = "Temperature reading: 23.7°C";
+            String encryptedPayload = CryptoUtils.encrypt(plaintext, key);
+            System.out.println("Encrypted payload: " + encryptedPayload);
+
             MqttClient client = new MqttClient(BROKER, "PublisherClient");
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
@@ -28,12 +33,11 @@ public class Publisher {
             client.connect(options);
             System.out.println("Publisher connected over TLS.");
 
-            String messageText = "Hello MQTT over TLS from Java!";
-            MqttMessage message = new MqttMessage(messageText.getBytes());
+            MqttMessage message = new MqttMessage(encryptedPayload.getBytes());
             message.setQos(1);
 
             client.publish(TOPIC, message);
-            System.out.println("Published: " + messageText);
+            System.out.println("Published encrypted payload to topic: " + TOPIC);
 
             client.disconnect();
             client.close();

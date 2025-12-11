@@ -13,6 +13,8 @@ public class Subscriber {
     public static void main(String[] args) {
         System.out.println("Subscriber running...");
         try {
+            byte[] key = KeyLoader.loadKey("keys/aes.key");
+
             MqttClient client = new MqttClient(BROKER, "SubscriberClient");
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
@@ -29,10 +31,19 @@ public class Subscriber {
                 }
 
                 @Override
-                public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-                    System.out.println("Received message: ");
-                    System.out.println("    → Topic: " + topic);
-                    System.out.println("    → Payload: " + new String(mqttMessage.getPayload()));
+                public void messageArrived(String topic, MqttMessage mqttMessage) {
+                    try {
+                        String encrypted = new String(mqttMessage.getPayload());
+                        System.out.println("Encrypted payload received: " + encrypted);
+
+                        String plaintext = CryptoUtils.decrypt(encrypted, key);
+                        System.out.println("Received message: ");
+                        System.out.println("    → Topic: " + topic);
+                        System.out.println("    → Payload: " + plaintext);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: Failed to decrypt message!");
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
@@ -45,7 +56,7 @@ public class Subscriber {
 
             client.subscribe(TOPIC, 1);
             System.out.println("Subscribed to: " + TOPIC);
-            System.out.println("Waiting for messages...");
+            System.out.println("Waiting for encrypted messages...");
         } catch (Exception e) {
             e.printStackTrace();
         }
