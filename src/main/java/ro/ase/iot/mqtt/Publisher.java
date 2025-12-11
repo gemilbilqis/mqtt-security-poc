@@ -19,6 +19,8 @@ public class Publisher {
             MqttClient client = new MqttClient(BROKER, "PublisherClient");
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
+            options.setUserName("iot_user");
+            options.setPassword("password123".toCharArray());
 
             SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             options.setSocketFactory(sslSocketFactory);

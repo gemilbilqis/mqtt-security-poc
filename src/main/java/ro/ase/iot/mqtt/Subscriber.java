@@ -15,6 +15,8 @@ public class Subscriber {
             MqttClient client = new MqttClient(BROKER, "SubscriberClient");
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
+            options.setUserName("iot_user");
+            options.setPassword("password123".toCharArray());
 
             SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             options.setSocketFactory(sslSocketFactory);
