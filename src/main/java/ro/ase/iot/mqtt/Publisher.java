@@ -5,11 +5,12 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import javax.net.ssl.SSLSocketFactory;
 import java.nio.charset.StandardCharsets;
 
 public class Publisher {
 
-    private static final String BROKER = "tcp://test.mosquitto.org:1883";
+    private static final String BROKER = "ssl://broker.emqx.io:8883";
     private static final String TOPIC = "ro/ase/iot/mqtt";
 
     public static void main(String[] args) {
@@ -19,10 +20,13 @@ public class Publisher {
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
 
-            client.connect(options);
-            System.out.println("Publisher connected.");
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            options.setSocketFactory(sslSocketFactory);
 
-            String messageText = "Hello MQTT from Java!";
+            client.connect(options);
+            System.out.println("Publisher connected over TLS.");
+
+            String messageText = "Hello MQTT over TLS from Java!";
             MqttMessage message = new MqttMessage(messageText.getBytes());
             message.setQos(1);
 
