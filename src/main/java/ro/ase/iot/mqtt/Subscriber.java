@@ -3,6 +3,7 @@ package ro.ase.iot.mqtt;
 import org.eclipse.paho.client.mqttv3.*;
 
 import javax.net.ssl.SSLSocketFactory;
+import java.security.Key;
 
 public class Subscriber {
 
