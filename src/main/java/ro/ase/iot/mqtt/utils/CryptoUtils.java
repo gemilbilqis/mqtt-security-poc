@@ -1,14 +1,11 @@
-package ro.ase.iot.mqtt;
+package ro.ase.iot.mqtt.utils;
 
-import javax.crypto.BadPaddingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import ro.ase.iot.mqtt.model.TelemetryData;
+
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -16,6 +13,8 @@ public class CryptoUtils {
     private static final String ENCRYPTION_MODE = "AES/GCM/NoPadding";
     private static final int GCM_TAG_LENGTH_BITS = 128;
     private static final int IV_LENGTH = 12;
+
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     public static String encrypt(String plaintext, byte[] key) {
         byte[] iv = new byte[IV_LENGTH];
@@ -58,6 +57,24 @@ public class CryptoUtils {
             return new String(plaintext);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static String encryptTelemetry(TelemetryData data, byte[] key) {
+        try {
+            String json = mapper.writeValueAsString(data);
+            return encrypt(json, key);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize and encrypt telemetry", e);
+        }
+    }
+
+    public static <T> T decryptTelemetry(String encryptedBase64, byte[] key, Class<T> type) {
+        try {
+            String json = decrypt(encryptedBase64, key);
+            return mapper.readValue(json, type);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to decrypt or deserialize JSON telemetry", e);
         }
     }
 }
