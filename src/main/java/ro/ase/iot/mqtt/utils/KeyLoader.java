@@ -1,4 +1,4 @@
-package ro.ase.iot.mqtt;
+package ro.ase.iot.mqtt.utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
